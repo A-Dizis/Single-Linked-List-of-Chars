@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdbool.h>
 
 struct item
 {
     struct item *next;
     char *value;
+    int key;
 };
 
 typedef struct item Item;
@@ -14,58 +17,59 @@ typedef struct item Item;
 void help(void)
 {
     printf("Help:\n"
-           "e: exit program\n"
+           "e: find if, a particular key, exist\n"
            "n: push new item in list\n"
            "d: pop last it from the list\n"
            "p: print the items in the list\n"
+           "q: quit\n"
            "h: this help\n\n");
 }
 
-void push(Item **ptr)
+void push(Item **ptr, int key, char *value)
 {
-    char n[50];
     size_t len = 0;
-    Item *temp = NULL;
-    char *tempc = NULL;
+    Item *tempstruct = NULL;
+    char *tempvalue = NULL;
+    int tempkey = 0;
 
-    if( (*ptr) == NULL )
+    if(value == NULL)
     {
-        (*ptr) = (Item*)(malloc(sizeof(Item)));
-        (*ptr)->next = NULL;
-
-        scanf("%s", n);
-        getchar();
-
-        len = strlen(n);
-
-        printf("lenght:%d\n\n", (int)len);
-
-        tempc = (*ptr)->value;
-        tempc = (char *)malloc(sizeof(char) * (len + 1));
-
-        strcpy(tempc, n);
-
-        (*ptr)->value = tempc;
+        printf("Dummy entrance not allowed\n");
     }
-
     else
     {
-        temp = (Item*)(malloc(sizeof(Item)));
-        temp->next = *ptr;
+        if( (*ptr) == NULL )
+        {
+            (*ptr) = (Item*)(malloc(sizeof(Item)));
+            (*ptr)->next = NULL;
 
-        scanf("%s", n);
-        getchar();
+            len = strlen(value);
+            printf("value lenght:%d\n", (int)len);
+            tempvalue = (char *)malloc(sizeof(char) * (len + 1));
+            strcpy(tempvalue, value);
 
-        len = strlen(n);
+            tempkey = key;
 
-        printf("lenght:%d\n\n", (int)len);
+            (*ptr)->value = tempvalue;
+            (*ptr)->key = tempkey;
+        }
 
-        tempc = (char *)malloc(sizeof(char) * (len + 1));
+        else
+        {
+            tempstruct = (Item*)(malloc(sizeof(Item)));
+            tempstruct->next = *ptr;
 
-        strcpy(tempc, n);
+            len = strlen(value);
+            printf("value lenght:%d\n", (int)len);
+            tempvalue = (char *)malloc(sizeof(char) * (len + 1));
+            strcpy(tempvalue, value);
+            tempstruct->value = tempvalue;
 
-        temp->value = tempc;
-        (*ptr) = temp;
+            tempkey = key;
+            tempstruct->key = tempkey;
+
+            (*ptr) = tempstruct;
+        }
     }
 }
 
@@ -89,8 +93,10 @@ void pop(Item **ptr)
         temp = (Item*)(malloc(sizeof(Item)));
         temp->next = (*ptr)->next->next;
 
+        temp->key = (*ptr)->next->key;
         temp->value = (char*)malloc(sizeof(char) * (strlen((*ptr)->next->value) + 1));
         strcpy(temp->value, (*ptr)->next->value);
+
         free((*ptr)->value);
         free(*ptr);
 
@@ -106,6 +112,9 @@ void print(Item *ptr)
 
     while(temp != NULL)
     {
+        printf("KEY:");
+        printf("%15.0d    ", temp->key);
+        printf("VALUE:");
         puts(temp->value);
 
         temp = temp->next;
@@ -114,36 +123,64 @@ void print(Item *ptr)
     free(temp);
 }
 
+int key_exists(int key, Item *head)
+{
+    Item *temp;
+    temp = head;
+
+    while(temp != NULL)
+    {
+        if(temp->key == key)
+            return 1;
+
+        temp = temp->next;
+    }
+    return 0;
+}
+
 int main()
 {
     char c = 'i';
 
     Item* head = NULL;
 
-
-
     while(1)
     {
-         printf("WHAT TO DO? \(help h)\n\n");
+        printf("WHAT TO DO? \(help h)\n");
 
         c = getchar();
         getchar();
 
         if(c == 'n')
-            push(&head);
+        {
+            int key;
+            char value[50];
 
+            printf("GIVE NODE KEY(ENTER) AND VALUE(ENTER):\n");
+
+            scanf("%d", &key);
+            getchar();
+            gets(value);
+
+            push(&head, key, value);
+        }
         else if(c == 'd')
             pop(&head);
-
         else if(c == 'p')
             print(head);
-
         else if(c == 'h')
             help();
-
         else if(c == 'e')
-            break;
+        {
+            int key;
 
+            printf("GIVE THE KEY:\n");
+            scanf("%d", &key);
+            getchar();
+            printf("%d\n", key_exists(key, head));
+        }
+        else if(c == 'q')
+            break;
         else
             ;
     }
