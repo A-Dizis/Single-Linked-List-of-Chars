@@ -3,10 +3,9 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "lists.h"
-
-
 
 void help(void)
 {
@@ -42,7 +41,7 @@ void push(Item **ptr, int key, char *value)
             (*ptr)->next = NULL;
 
             len = strlen(value);
-            printf("value lenght:%d\n", (int)len);
+            printf("String lenght:%d\n", (int)len);
             tempvalue = (char *)malloc(sizeof(char) * (len + 1));
             strcpy(tempvalue, value);
 
@@ -58,7 +57,7 @@ void push(Item **ptr, int key, char *value)
             tempstruct->next = *ptr;
 
             len = strlen(value);
-            printf("value lenght:%d\n", (int)len);
+            printf("String lenght:%d\n", (int)len);
             tempvalue = (char *)malloc(sizeof(char) * (len + 1));
             strcpy(tempvalue, value);
             tempstruct->value = tempvalue;
@@ -148,6 +147,19 @@ int length(Item *head)
     }
     return i;
 }
+
+void analyze_to_binary(int length, int **analysis)
+{
+    int i=0;
+    int remainder=length;
+
+    for(i=0; i<POW2TO; i++)
+    {
+        *(*analysis + i*sizeof(int)) = remainder%2;
+        remainder = remainder/2;
+    }
+}
+
 void split_list(Item **A, Item **B, int len)
 {
     Item *temp = *A;
@@ -163,21 +175,13 @@ void merged(Item **A, Item **B, int len)
 
     temp = *B;
     if((*A) == NULL || (*B) == NULL)
-        printf("Empty List!\n");
-    else if((*A)->next == NULL || (*B)->next == NULL)
-    {
-        if((*A)->key > (*B)->key)
+    {   
+        if((*A) == NULL)
         {
-            (*B)->next = (*A);
-            (*A)->next = NULL;
-            (*A) = (*B);
-        }
-        else
-        {
-            (*A)->next = (*B);
-            (*B)->next = NULL;
+                (*A) = (*B);
         }
     }
+   
     else
     {
         if((*A)->key > (*B)->key)
@@ -232,14 +236,70 @@ void Sort(Item **A, int len)
 
     split_list(A, &half, len);
 
-    if(j > 0)
+    if(j > 1)
     {
         Sort(A, j);
-        printf("Sort %d !\n", len);
         Sort(&half, j);
-        printf("Sort %d !\n", len);
     }
 
     merged(A, &half, len);
-    printf("Merge %d !\n", len);
+}
+
+
+void mergesort(Item **head)
+{
+    int len = 0;
+    int i, j;
+    int *analysis;
+    Item *auxlists[32];
+    Item *aux;
+
+    analysis = (int *)malloc(POW2TO * sizeof(int));
+
+    Item *temp = *head;
+
+    while (temp != NULL)
+    {
+        temp = temp->next;
+        len++;
+    }
+
+    analyze_to_binary(len, &analysis);
+
+    temp = *head;
+    for (i = 0; i < POW2TO; i++)
+    {
+        if (*(analysis + i * sizeof(int)) != 0)
+        {
+            printf("IN %d\n", (int)pow(2, (double)i));
+            auxlists[i] = temp;
+            for (j = 0; j < ((int)pow(2, (double)i) - 1); j++)
+            {
+                temp = temp->next;
+            }
+            aux = temp->next;
+            temp->next = NULL;
+            temp = aux;
+
+            Sort(&(auxlists[i]), (int)pow(2, (double)i));
+        }
+        else
+        {
+            auxlists[i] = NULL;
+        }
+    }
+
+    i = 0;
+    while (auxlists[i] == NULL)
+    {
+        i++;
+    }
+
+    for (j = 0; j < POW2TO; j++)
+    {
+        if ((auxlists[j] != NULL) && (j != i))
+            merged(&auxlists[i], &auxlists[j], 0);
+    }
+
+    *head = auxlists[i];
 }
