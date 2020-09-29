@@ -1,21 +1,13 @@
 #include "lists.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
 
-void help(void)
-{
-    printf("Help:\n"
-           "e: find if, a particular key, exist\n"
-           "n: push new item in list\n"
-           "d: pop last it from the list\n"
-           "p: print the items in the list\n"
-           "q: quit\n"
-           "h: this help\n\n");
-}
+
 
 
 int main()
@@ -26,7 +18,7 @@ int main()
 
     while(1)
     {
-        printf("WHAT TO DO? \(help h)\n");
+        printf("WHAT TO DO? (help h)\n");
 
         c = getchar();
         getchar();
@@ -40,7 +32,7 @@ int main()
 
             scanf("%d", &key);
             getchar();
-            gets(value);
+            fgets(value, 50, stdin);
 
             push(&head, key, value);
         }
@@ -61,6 +53,17 @@ int main()
         }
         else if(c == 'q')
             break;
+        else if(c == 's')
+        {
+            int len=0;
+            Item *temp = head;
+            while(temp != NULL)
+            {
+                temp = temp->next;
+                len++;
+            }
+            Sort(&head, len);
+        }
         else
             ;
     }

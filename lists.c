@@ -1,10 +1,27 @@
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "lists.h"
+
+
+
+void help(void)
+{
+    printf(
+        "Help:\n"
+        "e: find if, a particular key, exist\n"
+        "n: push new item in list\n"
+        "d: pop last it from the list\n"
+        "p: print the items in the list\n"
+        "s: sort he list based on key\n"
+        "q: quit\n"
+        "h: this help\n\n"
+        );
+}
+
 
 void push(Item **ptr, int key, char *value)
 {
@@ -131,70 +148,98 @@ int length(Item *head)
     }
     return i;
 }
-
-void merge(Item **A, Item **B, int len)
+void split_list(Item **A, Item **B, int len)
 {
-    int i;
-    Item *temp = (Item*)malloc(sizeof(Item));
+    Item *temp = *A;
+    for(int i=0; i<((len/2)-1); i++)
+        temp = temp->next;
+    *B = temp->next;
+    temp->next = NULL;
+}
+
+void merged(Item **A, Item **B, int len)
+{
+    Item *temp, *aux, *head;
 
     temp = *B;
-    temp->next = (*B)->next;
-    temp->key = (*B)->key;
-    temp->value = (char*)malloc(sizeof(char)* (strlen((*B)->value) + 1) );
-    strcpy(temp->value, (*B)->value);
-
-    while(i<len)
+    if((*A) == NULL || (*B) == NULL)
+        printf("Empty List!\n");
+    else if((*A)->next == NULL || (*B)->next == NULL)
     {
         if((*A)->key > (*B)->key)
         {
-
-            temp->next = *A;
-            *A = temp;
-
-
-
-            (*B)->key = (*B)->next->key;
-            free((*B)->value);
-            (*B)->value = (char*)malloc(sizeof(char)* (strlen((*B)->next->value) + 1) );
-            strcpy((*B)->value, (*B)->next->value);
-            (*B)->next = (*B)->next->next;
+            (*B)->next = (*A);
+            (*A)->next = NULL;
+            (*A) = (*B);
+        }
+        else
+        {
+            (*A)->next = (*B);
+            (*B)->next = NULL;
+        }
+    }
+    else
+    {
+        if((*A)->key > (*B)->key)
+        {
+            head = (*B);
             (*B) = (*B)->next;
-
-            temp = *B;
-            temp->next = (*B)->next;
-            temp->key = (*B)->key;
-            temp->value = (char*)malloc(sizeof(char)* (strlen((*B)->value) + 1) );
-            strcpy(temp->value, (*B)->value);
-
+            head->next = NULL;
+        }
+        else
+        {
+            head = (*A);
+            (*A) = (*A)->next;
+            head->next = NULL;
         }
 
+        aux = head;
+
+        while(((*A) != NULL) && ((*B)!= NULL))
+        {
+            if((*A)->key > (*B)->key)
+            {
+                aux->next = (*B);
+                *B = (*B)->next;
+                aux->next->next = NULL;
+            }
+            else
+            {
+                aux->next = *A;
+                *A = (*A)->next;
+                aux->next->next = NULL;
+            }
+            aux = aux->next;
+        }
+
+        if((*A) == NULL)
+        {
+            aux->next = *B;
+            *A = head;
+        }
+        else
+        {
+            aux->next = *A;
+            *A = head;
+        }
     }
-    free(temp);
 }
-
-void Sort(Item **head, Item **A, Item **B, int len)
+void Sort(Item **A, int len)
 {
-    int i = 0;
     int j = (len/2);
+    Item *half;
+    half = NULL;
 
-    if((len%2) != 1)
+    split_list(A, &half, len);
+
+    if(j > 0)
     {
-        Item *half = (Item*)malloc(sizeof(Item));
-
-        half = *A;
-        for(i=0; i<j, i++)
-            half = half->next;
-
-        Sort(A, &half, j)
-
-
-        half = *B;
-        for(i=0; i<j, i++)
-            half = half->next;
-
-        Sort(B, &half,j);
+        Sort(A, j);
+        printf("Sort %d !\n", len);
+        Sort(&half, j);
+        printf("Sort %d !\n", len);
     }
 
-    merge(A, B, len);
-
+    merged(A, &half, len);
+    printf("Merge %d !\n", len);
 }
