@@ -271,7 +271,6 @@ void mergesort(Item **head)
     {
         if (*(analysis + i * sizeof(int)) != 0)
         {
-            printf("IN %d\n", (int)pow(2, (double)i));
             auxlists[i] = temp;
             for (j = 0; j < ((int)pow(2, (double)i) - 1); j++)
             {
