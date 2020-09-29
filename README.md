@@ -5,3 +5,5 @@
 __*It includes as for now:*__
     
     *Single dynamically linked list of char pointers(strings) with key identifier in C
+    *Merge Sorting*
+    *Push and Pop functions to work as a stack*
