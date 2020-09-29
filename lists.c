@@ -251,7 +251,7 @@ void mergesort(Item **head)
     int len = 0;
     int i, j;
     int *analysis;
-    Item *auxlists[32];
+    Item *auxlists[POW2TO];
     Item *aux;
 
     analysis = (int *)malloc(POW2TO * sizeof(int));
